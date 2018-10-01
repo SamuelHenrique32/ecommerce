@@ -133,9 +133,10 @@ class User extends Model {
 	{
 
 		$sql = new Sql();
-
+        //procedure
 		$results = $sql->select("CALL sp_users_save(:desperson, :deslogin, :despassword, :desemail, :nrphone, :inadmin)", array(
-			":desperson"=>utf8_decode($this->getdesperson()),
+			//associacao com as chaves(nome campo do HTML)
+		    ":desperson"=>utf8_decode($this->getdesperson()),
 			":deslogin"=>$this->getdeslogin(),
 			":despassword"=>User::getPasswordHash($this->getdespassword()),
 			":desemail"=>$this->getdesemail(),
@@ -143,7 +144,7 @@ class User extends Model {
 			":inadmin"=>$this->getinadmin()
 		));
 
-		$this->setData($results[0]);
+		$this->setData($results[0]);        //somente primeira linha
 
 	}
 
@@ -153,7 +154,7 @@ class User extends Model {
 		$sql = new Sql();
 
 		$results = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) WHERE a.iduser = :iduser", array(
-			":iduser"=>$iduser
+			":iduser"=>$iduser          //parametro iduser para clausula where
 		));
 
 		$data = $results[0];
@@ -189,6 +190,7 @@ class User extends Model {
 
 		$sql = new Sql();
 
+		//chama procedure
 		$sql->query("CALL sp_users_delete(:iduser)", array(
 			":iduser"=>$this->getiduser()
 		));

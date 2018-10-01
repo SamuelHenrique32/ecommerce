@@ -141,7 +141,7 @@ $app->get("/admin/users/:iduser", function($iduser) {
 	$page = new PageAdmin();
 
 	$page->setTpl("users-update", array(
-		"user"=>$user->getValues()
+		"user"=>$user->getValues()                      //preenche template com dados do usuario a ser editado
 	));
 
 });
@@ -152,15 +152,16 @@ $app->post("/admin/users/create", function() {
 
 	$user = new User();
 
+    //se estiver definido e 1 senao e 0
 	$_POST["inadmin"] = (isset($_POST["inadmin"]))?1:0;
 
-	$_POST['despassword'] = User::getPassswordHash($_POST['despassword']);
+	//$_POST['despassword'] = User::getPassswordHash($_POST['despassword']);
 
 	$user->setData($_POST);
 
-	$user->save();
+	$user->save();                                      //executa insert no banco
 
-	header("Location: /admin/users");
+	header("Location: /admin/users");            //volta para listagem de usuarios
 	exit;
 
 });
@@ -171,15 +172,16 @@ $app->post("/admin/users/:iduser", function($iduser) {
 
 	$user = new User();
 
+	//se estiver definido e 1 senao e 0
 	$_POST["inadmin"] = (isset($_POST["inadmin"]))?1:0;
 
-	$user->get((int)$iduser);
+	$user->get((int)$iduser);                           //carrega dados
 
-	$user->setData($_POST);
+	$user->setData($_POST);                             //alteracoes
 
 	$user->update();	
 
-	header("Location: /admin/users");
+	header("Location: /admin/users");            //volta para listagem de usuarios
 	exit;
 
 });
