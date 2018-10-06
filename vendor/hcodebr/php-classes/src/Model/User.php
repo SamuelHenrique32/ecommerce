@@ -9,7 +9,7 @@ use \Hcode\Mailer;
 class User extends Model {
 
 	const SESSION = "User";
-	const SECRET = "HcodePhp7_Secret";
+	const SECRET = "HcodePhp7_Secret";          //chave criptografia e descriptografia (ao menos 16 caracteres)
 	const ERROR = "UserError";
 	const ERROR_REGISTER = "UserErrorRegister";
 	const SUCCESS = "UserSucesss";
@@ -201,29 +201,29 @@ class User extends Model {
 	{
 
 		$sql = new Sql();
-
+        //busca a partir do e-mail
 		$results = $sql->select("
 			SELECT *
 			FROM tb_persons a
 			INNER JOIN tb_users b USING(idperson)
 			WHERE a.desemail = :email;
 		", array(
-			":email"=>$email
+			":email"=>$email        //bind params
 		));
-
+        //nao encontrou e-mail
 		if (count($results) === 0)
 		{
-			throw new \Exception("Não foi possível recuperar a senha.");
+			throw new \Exception("Não foi possível recuperar a senha.");        //namespace principal
 			
 		}
 		else
 		{
-
+            //index 0
 			$data = $results[0];
-
+            //chama procedure, recebe id do usuario e desip
 			$results2 = $sql->select("CALL sp_userspasswordsrecoveries_create(:iduser, :desip)", array(
 				":iduser"=>$data["iduser"],
-				":desip"=>$_SERVER["REMOTE_ADDR"]
+				":desip"=>$_SERVER["REMOTE_ADDR"]       //pega ip do usuario
 			));
 
 			if (count($results2) === 0)
@@ -234,29 +234,40 @@ class User extends Model {
 			}
 			else
 			{
-
+                //validacoes OK, recuperar e-mail
 				$dataRecovery = $results2[0];
 
-				$code = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, User::SECRET, $dataRecovery["idrecovery"], MCRYPT_MODE_ECB));
+				//link em base 64
+                //tipo, chave de criptografia (para criptografar e descriptografar), dados, modo
+				//$code = base64_encode(openssl_encrypt(MCRYPT_RIJNDAEL_128, User::SECRET, $dataRecovery["idrecovery"], MCRYPT_MODE_ECB));
 
+
+                $iv = random_bytes(openssl_cipher_iv_length('aes-256-cbc'));
+                $code = openssl_encrypt($dataRecovery['idrecovery'], 'aes-256-cbc', User::SECRET, 0, $iv);
+                $result = base64_encode($iv.$code);
+
+				//montar link de recuperacao
 				if ($inadmin === true) {
-					
-					$link = "http://www.hcodecommerce.com.br/admin/forgot/reset?code=$code";
+					//? pois e via get
+					$link = "http://www.hcodecommerce.com.br/admin/forgot/reset?code=$result";
 
 				} else {
 
-					$link = "http://www.hcodecommerce.com.br/forgot/reset?code=$code";
+					$link = "http://www.hcodecommerce.com.br/forgot/reset?code=$result";
 
 				}
 
-
+                //instancia classe Mailer
+                //forgot e template
 				$mailer = new Mailer($data["desemail"], $data["desperson"], "Redefinir Senha da Hcode Store", "forgot", array(
 					"name"=>$data["desperson"],
-					"link"=>$link
+					"link"=>$link                       //recuperacao
 				));
 
+				//manda e-mail
 				$mailer->send();
 
+				//retorna dados do usuario para recuperar
 				return $data;
 
 			}
@@ -266,13 +277,20 @@ class User extends Model {
 
 	}
 
-	public static function validForgotDecrypt($code)
+	public static function validForgotDecrypt($result)
 	{
 
-		$idrecovery = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, User::SECRET, base64_decode($code), MCRYPT_MODE_ECB);
+		//$idrecovery = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, User::SECRET, base64_decode($code), MCRYPT_MODE_ECB);
+
+        $result = base64_decode($result);
+        $code = mb_substr($result, openssl_cipher_iv_length('aes-256-cbc'), null, '8bit');
+        $iv = mb_substr($result, 0, openssl_cipher_iv_length('aes-256-cbc'), '8bit');;
+        $idrecovery = openssl_decrypt($code, 'aes-256-cbc', User::SECRET, 0, $iv);
 
 		$sql = new Sql();
 
+		//consulta idrecovery, se ja foi utilizado e faz validacao de horario (valido por uma hora)
+        //idrecovery do link deve bater com o banco
 		$results = $sql->select("
 			SELECT * 
 			FROM tb_userspasswordsrecoveries a
@@ -288,19 +306,20 @@ class User extends Model {
 			":idrecovery"=>$idrecovery
 		));
 
+		//verifica validacao
 		if (count($results) === 0)
 		{
-			throw new \Exception("Não foi possível recuperar a senha.");
+			throw new \Exception("Não foi possível recuperar a senha.");            // raiz
 		}
 		else
 		{
-
+            //devolve dados do usuario
 			return $results[0];
 
 		}
 
 	}
-
+    //recuperacao de senha ja efetuada
 	public static function setFogotUsed($idrecovery)
 	{
 
@@ -311,7 +330,7 @@ class User extends Model {
 		));
 
 	}
-
+    //insere hash da nova senha no banco
 	public function setPassword($password)
 	{
 

@@ -66,7 +66,7 @@
         Google+</a>
     </div>
     <!-- /.social-auth-links -->
-
+    <!-- se clicar no forgot, vai para /admin/forgot -->
     <a href="/admin/forgot">I forgot my password</a><br>
     <a href="register.html" class="text-center">Register a new membership</a>
 
