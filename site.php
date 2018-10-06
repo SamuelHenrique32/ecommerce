@@ -18,7 +18,6 @@ $app->get('/', function() {
 	$page->setTpl("index", [
 		'products'=>Product::checkList($products)
 	]);
-
 });
 
 $app->get("/categories/:idcategory", function($idcategory){
