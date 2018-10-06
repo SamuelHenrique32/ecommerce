@@ -2,15 +2,13 @@
 
 namespace Hcode;
 
-//renderizacao de template
 use Rain\Tpl;
 
-class Mailer {                                          //escopo principal
-
-    //email utilizado para enviar
-    const USERNAME = "borispatinha@gmail.com";
-    const PASSWORD = "gatao123";
-	const NAME_FROM = "Hcode Store";                    //remetente
+class Mailer {
+	
+	const USERNAME = "cursophp7hcode@gmail.com";
+	const PASSWORD = "<?password?>";
+	const NAME_FROM = "Hcode Store";
 
 	private $mail;
 
@@ -27,14 +25,12 @@ class Mailer {                                          //escopo principal
 
 		$tpl = new Tpl;
 
-		//dados para template
 		foreach ($data as $key => $value) {
 			$tpl->assign($key, $value);
 		}
 
-		//desenha para dentro da variavel, manda como corpo da mensagem
 		$html = $tpl->draw($tplName, true);
-        //escopo principal usa \
+
 		$this->mail = new \PHPMailer;
 
 		//Tell PHPMailer to use SMTP
@@ -84,7 +80,6 @@ class Mailer {                                          //escopo principal
 
 		//Read an HTML message body from an external file, convert referenced images to embedded,
 		//convert HTML into a basic plain-text alternative body
-        //html renderizado com rain tpl
 		$this->mail->msgHTML($html);
 
 		//Replace the plain text body with one created manually
@@ -95,7 +90,6 @@ class Mailer {                                          //escopo principal
 
 	}
 
-	//fora do construct, manda somente quando for chamado
 	public function send()
 	{
 
