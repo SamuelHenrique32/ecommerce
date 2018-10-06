@@ -16,6 +16,7 @@ class Model {
 		{
 
 			case "get":
+			    // se for definido retorna senao, retorna null
 				return (isset($this->values[$fieldName])) ? $this->values[$fieldName] : NULL;
 			break;
 

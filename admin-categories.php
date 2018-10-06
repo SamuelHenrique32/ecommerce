@@ -6,7 +6,7 @@ use \Hcode\Model\Category;
 use \Hcode\Model\Product;
 
 $app->get("/admin/categories", function(){
-
+    //verifica se esta logado
 	User::verifyLogin();
 
 	$search = (isset($_GET['search'])) ? $_GET['search'] : "";
@@ -39,7 +39,7 @@ $app->get("/admin/categories", function(){
 
 	$page = new PageAdmin();
 
-	$page->setTpl("categories", [
+	$page->setTpl("categories", [                       //parametros
 		"categories"=>$pagination['data'],
 		"search"=>$search,
 		"pages"=>$pages
@@ -48,6 +48,7 @@ $app->get("/admin/categories", function(){
 
 });
 
+//criacao de categoria, abre tela para cadastro
 $app->get("/admin/categories/create", function(){
 
 	User::verifyLogin();
@@ -58,32 +59,34 @@ $app->get("/admin/categories/create", function(){
 
 });
 
+//criacao de categoria, salva
 $app->post("/admin/categories/create", function(){
 
 	User::verifyLogin();
 
 	$category = new Category();
 
-	$category->setData($_POST);
+	$category->setData($_POST);                     //array global para objeto
 
-	$category->save();
+	$category->save();                              //salva
 
-	header('Location: /admin/categories');
+	header('Location: /admin/categories');   //redireciona
 	exit;
 
 });
 
+//recebe id da categoria pela url
 $app->get("/admin/categories/:idcategory/delete", function($idcategory){
 
 	User::verifyLogin();
 
 	$category = new Category();
 
-	$category->get((int)$idcategory);
+	$category->get((int)$idcategory);               //carrega objeto
 
-	$category->delete();
+	$category->delete();                            //deleta
 
-	header('Location: /admin/categories');
+	header('Location: /admin/categories');   //redireciona
 	exit;
 
 });
@@ -94,11 +97,11 @@ $app->get("/admin/categories/:idcategory", function($idcategory){
 
 	$category = new Category();
 
-	$category->get((int)$idcategory);
+	$category->get((int)$idcategory);               //busca id, de texto para numerico
 
 	$page = new PageAdmin();
 
-	$page->setTpl("categories-update", [
+	$page->setTpl("categories-update", [            //view, parametros view
 		'category'=>$category->getValues()
 	]);	
 
@@ -112,11 +115,11 @@ $app->post("/admin/categories/:idcategory", function($idcategory){
 
 	$category->get((int)$idcategory);
 
-	$category->setData($_POST);
+	$category->setData($_POST);                     //coloca o que receber do post
 
-	$category->save();	
+	$category->save();	                            //salva alteracoes
 
-	header('Location: /admin/categories');
+	header('Location: /admin/categories');  //redireciona
 	exit;
 
 });

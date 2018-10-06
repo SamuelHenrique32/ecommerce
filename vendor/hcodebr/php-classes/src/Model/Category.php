@@ -10,7 +10,7 @@ class Category extends Model {
 
 	public static function listAll()
 	{
-
+        //lista tudo na tabela
 		$sql = new Sql();
 
 		return $sql->select("SELECT * FROM tb_categories ORDER BY descategory");
@@ -23,7 +23,7 @@ class Category extends Model {
 		$sql = new Sql();
 
 		$results = $sql->select("CALL sp_categories_save(:idcategory, :descategory)", array(
-			":idcategory"=>$this->getidcategory(),
+			":idcategory"=>$this->getidcategory(),                  //bind params
 			":descategory"=>$this->getdescategory()
 		));
 
@@ -33,19 +33,21 @@ class Category extends Model {
 
 	}
 
+	//busca objeto pelo id
 	public function get($idcategory)
 	{
 
 		$sql = new Sql();
-
-		$results = $sql->select("SELECT * FROM tb_categories WHERE idcategory = :idcategory", [
+        //chama procedure
+		$results = $sql->select("SELECT * FROM tb_categories WHERE idcategory = :idcategory ORDER BY idcategory", [
 			':idcategory'=>$idcategory
 		]);
-
+		//set para objeto
 		$this->setData($results[0]);
 
 	}
 
+	//deleta objeto carregado
 	public function delete()
 	{
 
