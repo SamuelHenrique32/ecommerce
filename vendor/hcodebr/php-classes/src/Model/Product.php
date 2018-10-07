@@ -12,6 +12,18 @@ class Product extends Model {
 		return $sql->select("SELECT * FROM tb_products ORDER BY desproduct");
 	}
 
+    public static function checkList($list)						//recebe lista de produtos
+    {
+        foreach ($list as &$row) {								//& e ponteiro, manipula mesma variavel
+
+            $p = new Product();
+            $p->setData($row);
+            $row = $p->getValues();								//verifica foto
+        }
+        return $list;
+    }
+
+
 	public function save()
 	{
 		$sql = new Sql();
