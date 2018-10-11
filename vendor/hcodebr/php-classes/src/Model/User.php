@@ -14,53 +14,37 @@ class User extends Model {
 	const ERROR_REGISTER = "UserErrorRegister";
 	const SUCCESS = "UserSucesss";
 
-	public static function getFromSession()
-	{
+    public static function getFromSession()
+    {
+        $user = new User();
+        if (isset($_SESSION[User::SESSION]) && (int)$_SESSION[User::SESSION]['iduser'] > 0) {   //sessao definida
+            $user->setData($_SESSION[User::SESSION]);
+        }
+        return $user;       //indefinida, retorna vazio
+    }
 
-		$user = new User();
+    public static function checkLogin($inadmin = true)                                           //esta logado
+    {
+        if (
+            !isset($_SESSION[User::SESSION])
+            ||
+            !$_SESSION[User::SESSION]
+            ||
+            !(int)$_SESSION[User::SESSION]["iduser"] > 0
+        ) {
+            //Nao está logado
+            return false;
+        } else {
+            if ($inadmin === true && (bool)$_SESSION[User::SESSION]['inadmin'] === true) {          //usuario adm e rota adm
+                return true;
+            } else if ($inadmin === false) {                                                        //nao e rota adm
+                return true;
+            } else {
+                return false;                                                                       //nao esta logado
+            }
+        }
+    }
 
-		if (isset($_SESSION[User::SESSION]) && (int)$_SESSION[User::SESSION]['iduser'] > 0) {
-
-			$user->setData($_SESSION[User::SESSION]);
-
-		}
-
-		return $user;
-
-	}
-
-	public static function checkLogin($inadmin = true)
-	{
-
-		if (
-			!isset($_SESSION[User::SESSION])
-			||
-			!$_SESSION[User::SESSION]
-			||
-			!(int)$_SESSION[User::SESSION]["iduser"] > 0
-		) {
-			//Não está logado
-			return false;
-
-		} else {
-
-			if ($inadmin === true && (bool)$_SESSION[User::SESSION]['inadmin'] === true) {
-
-				return true;
-
-			} else if ($inadmin === false) {
-
-				return true;
-
-			} else {
-
-				return false;
-
-			}
-
-		}
-
-	}
 
 	public static function login($login, $password)
 	{
@@ -83,7 +67,7 @@ class User extends Model {
 
 			$user = new User();
 
-			$data['desperson'] = utf8_encode($data['desperson']);
+			//$data['desperson'] = utf8_encode($data['desperson']);
 
 			$user->setData($data);
 
@@ -97,21 +81,13 @@ class User extends Model {
 
 	}
 
-	public static function verifyLogin($inadmin = true)
-	{
-
-		if (!User::checkLogin($inadmin)) {
-
-			if ($inadmin) {
-				header("Location: /admin/login");
-			} else {
-				header("Location: /login");
-			}
-			exit;
-
-		}
-
-	}
+    public static function verifyLogin($inadmin = true)
+    {
+        if (User::checkLogin($inadmin)) {
+            header("Location: /admin/login");
+            exit;
+        }
+    }
 
 	public static function logout()
 	{
