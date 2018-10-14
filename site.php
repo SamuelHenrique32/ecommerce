@@ -195,15 +195,18 @@ $app->get("/forgot", function() {
     $page = new Page();
     $page->setTpl("forgot");
 });
+
 $app->post("/forgot", function(){
     $user = User::getForgot($_POST["email"], false);                //false pois nao e adm
     header("Location: /forgot/sent");
     exit;
 });
+
 $app->get("/forgot/sent", function(){
     $page = new Page();
     $page->setTpl("forgot-sent");
 });
+
 $app->get("/forgot/reset", function(){
     $user = User::validForgotDecrypt($_GET["code"]);
     $page = new Page();
@@ -212,6 +215,7 @@ $app->get("/forgot/reset", function(){
         "code"=>$_GET["code"]
     ));
 });
+
 $app->post("/forgot/reset", function(){
     $forgot = User::validForgotDecrypt($_POST["code"]);
     User::setFogotUsed($forgot["idrecovery"]);
@@ -221,6 +225,47 @@ $app->post("/forgot/reset", function(){
     $user->setPassword($password);
     $page = new Page();
     $page->setTpl("forgot-reset-success");
+});
+
+$app->get("/profile", function(){                                      //exibe tela
+    User::verifyLogin(false);                                          //nao adm
+    $user = User::getFromSession();
+    $page = new Page();
+    $page->setTpl("profile", [
+        'user'=>$user->getValues(),
+        'profileMsg'=>User::getSuccess(),
+        'profileError'=>User::getError()
+    ]);
+});
+
+$app->post("/profile", function(){                                     //valida e salva dados no banco
+    User::verifyLogin(false);
+    if (!isset($_POST['desperson']) || $_POST['desperson'] === '') {   //nao existir ou igual a vazio
+        User::setError("Preencha o seu nome.");
+        header('Location: /profile');
+        exit;
+    }
+    if (!isset($_POST['desemail']) || $_POST['desemail'] === '') {
+        User::setError("Preencha o seu e-mail.");
+        header('Location: /profile');
+        exit;
+    }
+    $user = User::getFromSession();
+    if ($_POST['desemail'] !== $user->getdesemail()) {                  //alterou o e-mail
+        if (User::checkLoginExists($_POST['desemail'])) {
+            User::setError("Este endereço de e-mail já está cadastrado.");
+            header('Location: /profile');
+            exit;
+        }
+    }
+    $_POST['inadmin'] = $user->getinadmin();                             //pega inadmin do banco, evita command injection
+    $_POST['despassword'] = $user->getdespassword();
+    $_POST['deslogin'] = $_POST['desemail'];
+    $user->setData($_POST);
+    $user->save();
+    User::setSuccess("Dados alterados com sucesso!");
+    header('Location: /profile');
+    exit;
 });
 
 ?>
