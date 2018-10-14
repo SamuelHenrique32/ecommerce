@@ -28,7 +28,7 @@ class User extends Model {
         if (
             !isset($_SESSION[User::SESSION])
             ||
-            !$_SESSION[User::SESSION]
+            !$_SESSION[User::SESSION]                                                           //nao vazia
             ||
             !(int)$_SESSION[User::SESSION]["iduser"] > 0
         ) {
@@ -67,7 +67,7 @@ class User extends Model {
 
 			$user = new User();
 
-			//$data['desperson'] = utf8_encode($data['desperson']);
+			$data['desperson'] = utf8_encode($data['desperson']);
 
 			$user->setData($data);
 
@@ -83,8 +83,12 @@ class User extends Model {
 
     public static function verifyLogin($inadmin = true)
     {
-        if (User::checkLogin($inadmin)) {
-            header("Location: /admin/login");
+        if (!User::checkLogin($inadmin)) {
+            if ($inadmin) {
+                header("Location: /admin/login");
+            } else {
+                header("Location: /login");
+            }
             exit;
         }
     }
