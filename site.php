@@ -61,7 +61,8 @@ $app->get("/cart", function(){                                  //carrinho de co
     $page = new Page();
     $page->setTpl("cart", [
         'cart'=>$cart->getValues(),
-        'products'=>$cart->getProducts()
+        'products'=>$cart->getProducts(),
+		'error'=>Cart::getMsgError()
     ]);
 });
 
@@ -92,6 +93,13 @@ $app->get("/cart/:idproduct/remove", function($idproduct){
     $product->get((int)$idproduct);
     $cart = Cart::getFromSession();
     $cart->removeProduct($product, true);
+    header("Location: /cart");
+    exit;
+});
+
+$app->post("/cart/freight", function(){                           //calculo frete
+    $cart = Cart::getFromSession();
+    $cart->setFreight($_POST['zipcode']);
     header("Location: /cart");
     exit;
 });
