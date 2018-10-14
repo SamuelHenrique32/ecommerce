@@ -226,7 +226,7 @@ class User extends Model {
                 $code = openssl_encrypt($dataRecovery['idrecovery'], 'aes-256-cbc', User::SECRET, 0, $iv);
                 $result = base64_encode($iv.$code);
 
-				//montar link de recuperacao
+				//montar link de recuperacao do admin ou usuario da loja
 				if ($inadmin === true) {
 					//? pois e via get
 					$link = "http://www.hcodecommerce.com.br/admin/forgot/reset?code=$result";
