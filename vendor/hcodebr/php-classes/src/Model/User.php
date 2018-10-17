@@ -420,12 +420,10 @@ class User extends Model {
 
 	}
 
-	public function getOrders()
-	{
-
-		$sql = new Sql();
-
-		$results = $sql->select("
+    public function getOrders()
+    {
+        $sql = new Sql();
+        $results = $sql->select("
 			SELECT * 
 			FROM tb_orders a 
 			INNER JOIN tb_ordersstatus b USING(idstatus) 
@@ -435,12 +433,10 @@ class User extends Model {
 			INNER JOIN tb_persons f ON f.idperson = d.idperson
 			WHERE a.iduser = :iduser
 		", [
-			':iduser'=>$this->getiduser()
-		]);
-
-		return $results;
-
-	}
+            ':iduser'=>$this->getiduser()
+        ]);
+        return $results;
+    }
 
 	public static function getPage($page = 1, $itemsPerPage = 10)
 	{
