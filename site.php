@@ -130,6 +130,7 @@ $app->get("/checkout", function(){
 
     //se nao estiver setado, coloca vazio
     if (!$address->getdesaddress()) $address->setdesaddress('');
+    if (!$address->getdesnumber()) $address->setdesnumber('');
     if (!$address->getdescomplement()) $address->setdescomplement('');
     if (!$address->getdesdistrict()) $address->setdesdistrict('');
     if (!$address->getdescity()) $address->setdescity('');
